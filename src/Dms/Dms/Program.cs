@@ -15,7 +15,12 @@ void Seed()
     Doc excelDoc = new Doc();
     session.Store(excelDoc);
     using var excelStream = new FileStream(@"..\..\..\..\..\..\docs\Excel.xlsx", FileMode.Open);
-    session.Advanced.Attachments.Store(excelDoc.Id, "Excel.xlsx", excelStream, "	application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    session.Advanced.Attachments.Store(excelDoc.Id, "Excel.xlsx", excelStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+    Doc pdfDoc = new Doc();
+    session.Store(pdfDoc);
+    using var pdfStream = new FileStream(@"..\..\..\..\..\..\docs\Pdf.pdf", FileMode.Open);
+    session.Advanced.Attachments.Store(excelDoc.Id, "Pdf.pdf", pdfStream, "application/pdf");
 
     session.SaveChanges();
 }
