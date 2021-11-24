@@ -3,7 +3,7 @@ using Dms.Models;
 
 var session = DocumentStoreHolder.Store.OpenSession();
 
-Seed();
+//Seed();
 
 void Seed()
 {
