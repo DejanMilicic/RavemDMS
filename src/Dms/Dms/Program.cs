@@ -3,15 +3,19 @@ using Dms.Models;
 
 var session = DocumentStoreHolder.Store.OpenSession();
 
-//Seed();
+Seed();
 
 void Seed()
 {
-    Doc doc = new Doc();
-    session.Store(doc);
-    
+    Doc wordDoc = new Doc();
+    session.Store(wordDoc);
     using var stream = new FileStream(@"..\..\..\..\..\..\docs\Lorem.docx", FileMode.Open);
-    session.Advanced.Attachments.Store(doc.Id, "Loren.docx", stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    session.Advanced.Attachments.Store(wordDoc.Id, "Loren.docx", stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+    Doc excelDoc = new Doc();
+    session.Store(excelDoc);
+    using var excelStream = new FileStream(@"..\..\..\..\..\..\docs\Excel.xlsx", FileMode.Open);
+    session.Advanced.Attachments.Store(excelDoc.Id, "Excel.xlsx", excelStream, "	application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     session.SaveChanges();
 }

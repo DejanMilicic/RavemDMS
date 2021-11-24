@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public static class ExtractText
 {
@@ -12,6 +13,10 @@ public static class ExtractText
         if (fileName.ToLower().EndsWith(".docx"))
         {
             return GetWordText(stream);
+        }
+        else if (fileName.ToLower().EndsWith(".xlsx"))
+        {
+            return GetExcelText(stream);
         }
         else
         {
@@ -48,9 +53,13 @@ public static class ExtractText
         using var doc = SpreadsheetDocument.Open(stream, false);
         Func<OpenXmlElement, string> selector = x => x.InnerText;
 
-        string[] sst = doc.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First()
+        IEnumerable<SharedStringTablePart> sharedTableParts = doc.WorkbookPart.GetPartsOfType<SharedStringTablePart>();
+
+        string[] sst = sharedTableParts
+            .First()
             .SharedStringTable.ChildElements.Select(selector)
             .ToArray();
+
         foreach (var sheet in doc.WorkbookPart.Workbook.Descendants<Sheet>())
         {
             var part = (WorksheetPart)doc.WorkbookPart.GetPartById(sheet.Id);
