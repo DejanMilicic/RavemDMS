@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using IronOcr;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 
@@ -25,6 +26,10 @@ public static class ExtractText
         {
             return GetPdfText(stream);
         }
+        else if (fileName.ToLower().EndsWith(".jpg") || fileName.ToLower().EndsWith(".png"))
+        {
+            return GetImageText(stream);
+        }
         else
         {
             return new string[]
@@ -32,6 +37,21 @@ public static class ExtractText
                 fileName
             };
         }
+    }
+
+    // nuget: IronOcr 2021.11.0
+    private static IEnumerable<string> GetImageText(Stream stream)
+    {
+        IronOcr.Installation.LicenseKey = "your_license_key_here";
+        var Ocr = new IronTesseract();
+
+        using var Input = new OcrInput();
+        
+        Input.AddImage(stream);
+
+        OcrResult? Result = Ocr.Read(Input);
+
+        return new List<string> { Result.Text };
     }
 
     // nuget: iTextSharp 5.5.13.2

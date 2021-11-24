@@ -28,7 +28,8 @@ public class Search : AbstractIndexCreationTask<Doc>
         AdditionalAssemblies = new HashSet<AdditionalAssembly>()
         {
             AdditionalAssembly.FromNuGet("DocumentFormat.OpenXml", "2.14.0"),
-            AdditionalAssembly.FromNuGet("iTextSharp", "5.5.13.2")
+            AdditionalAssembly.FromNuGet("iTextSharp", "5.5.13.2"),
+            AdditionalAssembly.FromNuGet("IronOcr", "2021.11.0")
         };
 
         AdditionalSources = new Dictionary<string, string>
