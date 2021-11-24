@@ -10,7 +10,7 @@ public static class DocumentStoreHolder
             {
                 IDocumentStore store = new DocumentStore
                 {
-                    Urls = new[] { "http://127.0.0.1" },
+                    Urls = new[] { "http://127.0.0.1:8080" },
                     Database = "dms"
                 };
 
