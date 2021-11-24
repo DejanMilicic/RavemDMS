@@ -5,6 +5,9 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.parser;
 
 public static class ExtractText
 {
@@ -18,6 +21,10 @@ public static class ExtractText
         {
             return GetExcelText(stream);
         }
+        else if (fileName.ToLower().EndsWith(".pdf"))
+        {
+            return GetPdfText(stream);
+        }
         else
         {
             return new string[]
@@ -25,6 +32,19 @@ public static class ExtractText
                 fileName
             };
         }
+    }
+
+    // nuget: iTextSharp 5.5.13.2
+    private static IEnumerable<string> GetPdfText(Stream stream)
+    {
+        List<string> content = new List<string>();
+        
+        PdfReader reader = new PdfReader(stream);
+        for (int page = 1; page <= reader.NumberOfPages; page++)
+            content.Add(PdfTextExtractor.GetTextFromPage(reader, page));
+        reader.Close();
+        
+        return content;
     }
 
     // nuget: DocumentsFormat.OpenXml

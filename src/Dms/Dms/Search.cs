@@ -27,7 +27,8 @@ public class Search : AbstractIndexCreationTask<Doc>
 
         AdditionalAssemblies = new HashSet<AdditionalAssembly>()
         {
-            AdditionalAssembly.FromNuGet("DocumentFormat.OpenXml", "2.14.0")
+            AdditionalAssembly.FromNuGet("DocumentFormat.OpenXml", "2.14.0"),
+            AdditionalAssembly.FromNuGet("iTextSharp", "5.5.13.2")
         };
 
         AdditionalSources = new Dictionary<string, string>
@@ -40,6 +41,9 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.parser;
 
 public static class ExtractText
 {
@@ -53,17 +57,34 @@ public static class ExtractText
         {
             return GetExcelText(stream);
 }
-        else
+        else if (fileName.ToLower().EndsWith("".pdf""))
         {
-            return new string[]
-            {
-                fileName
-            };
+            return GetPdfText(stream);
         }
+        else
+{
+    return new string[]
+    {
+                fileName
+    };
+}
     }
 
-    // nuget: DocumentsFormat.OpenXml
-    public static IEnumerable<string> GetWordText(Stream stream)
+    // nuget: iTextSharp 5.5.13.2
+    private static IEnumerable<string> GetPdfText(Stream stream)
+{
+    List<string> content = new List<string>();
+
+    PdfReader reader = new PdfReader(stream);
+    for (int page = 1; page <= reader.NumberOfPages; page++)
+        content.Add(PdfTextExtractor.GetTextFromPage(reader, page));
+    reader.Close();
+
+    return content;
+}
+
+// nuget: DocumentsFormat.OpenXml
+public static IEnumerable<string> GetWordText(Stream stream)
 {
     using var doc = WordprocessingDocument.Open(stream, false);
     foreach (var element in doc.MainDocumentPart.Document.Body)
@@ -88,12 +109,12 @@ public static IEnumerable<string> GetExcelText(Stream stream)
     using var doc = SpreadsheetDocument.Open(stream, false);
     Func<OpenXmlElement, string> selector = x => x.InnerText;
 
-        IEnumerable<SharedStringTablePart> sharedTableParts = doc.WorkbookPart.GetPartsOfType<SharedStringTablePart>();
+    IEnumerable<SharedStringTablePart> sharedTableParts = doc.WorkbookPart.GetPartsOfType<SharedStringTablePart>();
 
-        string[] sst = sharedTableParts
-            .First()
-            .SharedStringTable.ChildElements.Select(selector)
-            .ToArray();
+    string[] sst = sharedTableParts
+        .First()
+        .SharedStringTable.ChildElements.Select(selector)
+        .ToArray();
 
     foreach (var sheet in doc.WorkbookPart.Workbook.Descendants<Sheet>())
     {
@@ -116,6 +137,8 @@ public static IEnumerable<string> GetExcelText(Stream stream)
     }
 }
 }
+
+
 
 
 
