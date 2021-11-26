@@ -1,9 +1,29 @@
 ﻿using Dms;
 using Dms.Models;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Session;
 
 var session = DocumentStoreHolder.Store.OpenSession();
 
-Seed();
+//Seed();
+
+string term = "ferrari";
+
+List<Doc> results = session.Query<Search.Entry, Search>()
+        .Search(x => x.Query, "ferrari")
+        .Statistics(out QueryStatistics stats)
+        //.Skip(0)
+        //.Take(1)
+        .ProjectInto<Doc>()
+        .ToList();
+
+Console.WriteLine($"Searching for '{term}'");
+Console.WriteLine($"Elapsed time: {stats.DurationInMs}ms");
+Console.WriteLine($"Total results: {stats.TotalResults}");
+Console.WriteLine("=== Results:");
+
+foreach (Doc doc in results)
+    Console.WriteLine($"Doc.Id: {doc.Id} \t Doc.Name: {doc.Name}");
 
 void Seed()
 {
@@ -40,4 +60,8 @@ void Seed()
     session.Advanced.Attachments.Store(imageDoc.Id, "image.jpg", imageStream, "image/jpeg");
 
     session.SaveChanges();
+
+
+
+
 }
